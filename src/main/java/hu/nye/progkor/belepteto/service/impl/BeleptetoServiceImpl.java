@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import hu.nye.progkor.belepteto.model.InOut;
 import hu.nye.progkor.belepteto.model.User;
 import hu.nye.progkor.belepteto.model.exception.NotFoundException;
-import hu.nye.progkor.belepteto.model.exception.WrongDirectionException;
+import hu.nye.progkor.belepteto.model.exception.WrongDataException;
 import hu.nye.progkor.belepteto.service.BeleptetoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,6 @@ public class BeleptetoServiceImpl implements BeleptetoService {
 
   private final List<User> userList = new ArrayList<>();
   private final List<InOut> inOutList = new ArrayList<>();
-  private final List<InOut> inOutsByUser = new ArrayList<>();
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   @Autowired
@@ -31,12 +30,13 @@ public class BeleptetoServiceImpl implements BeleptetoService {
     inOutList.add(new InOut(1L, LocalDateTime.of(2000, Month.MAY, 22, 11,
             22, 0).format(formatter), "Be"));
     inOutList.add(new InOut(2L, LocalDateTime.of(2022, Month.MAY, 14, 16,
-            0, 0).format(formatter), "Be"));
+            0, 0).format(formatter), "Ki"));
   }
 
 
-  public BeleptetoServiceImpl(final List<User> users) {
+  public BeleptetoServiceImpl(final List<User> users, final List<InOut> inOuts) {
     userList.addAll(users);
+    inOutList.addAll(inOuts);
   }
 
   @Override
@@ -45,19 +45,16 @@ public class BeleptetoServiceImpl implements BeleptetoService {
   }
 
   @Override
-  public User getUser(Long id) {
-    return userList.stream()
-            .filter(user -> user.getId().equals(id))
-            .findFirst()
-            .orElseThrow(NotFoundException::new);
-  }
-
-  @Override
   public User createUser(User user) {
     User newUser = new User();
     newUser.setId(getNextUserId());
-    newUser.setFirstName(user.getFirstName());
-    newUser.setLastName(user.getLastName());
+    if (!user.getFirstName().equals("") && !user.getLastName().equals("")) {
+      newUser.setFirstName(user.getFirstName());
+      newUser.setLastName(user.getLastName());
+    } else {
+      throw new WrongDataException();
+    }
+
     userList.add(newUser);
     return newUser;
   }
@@ -71,14 +68,6 @@ public class BeleptetoServiceImpl implements BeleptetoService {
   public List<InOut> getInOutsByUser(Long id) {
     return inOutList.stream()
             .filter(inout -> inout.getId().equals(id)).collect(Collectors.toList());
-  }
-
-  @Override
-  public InOut getInOut(Long id) {
-    return inOutList.stream()
-            .filter(inOut -> inOut.getId().equals(id))
-            .findFirst()
-            .orElseThrow(NotFoundException::new);
   }
 
   @Override
@@ -100,18 +89,20 @@ public class BeleptetoServiceImpl implements BeleptetoService {
               userInOut) {
         System.out.println(user.getId() + " " + user.getIn());
       }
-
+      if (!inOut.getIn().equals("Ki") && !inOut.getIn().equals("Be")) {
+        throw new WrongDataException();
+      }
       if (inOut.getIn().equals("Be")) {
         if (userInOut.get(userInOut.size() - 1).getIn().equals("Ki")) {
           newInOut.setIn(inOut.getIn());
         } else {
-          throw new WrongDirectionException();
+          throw new WrongDataException();
         }
       } else {
         if (userInOut.get(userInOut.size() - 1).getIn().equals("Be")) {
           newInOut.setIn(inOut.getIn());
         } else {
-          throw new WrongDirectionException();
+          throw new WrongDataException();
         }
       }
     } else {
@@ -128,17 +119,6 @@ public class BeleptetoServiceImpl implements BeleptetoService {
   private Long getLastUserId() {
     return userList.stream()
             .mapToLong(User::getId)
-            .max()
-            .orElse(0);
-  }
-
-  private long getNextInOutId() {
-    return getLastInOutId() + 1L;
-  }
-
-  private Long getLastInOutId() {
-    return inOutList.stream()
-            .mapToLong(InOut::getId)
             .max()
             .orElse(0);
   }

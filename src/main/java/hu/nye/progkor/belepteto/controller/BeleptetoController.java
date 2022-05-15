@@ -5,7 +5,7 @@ import java.util.List;
 import hu.nye.progkor.belepteto.model.InOut;
 import hu.nye.progkor.belepteto.model.User;
 import hu.nye.progkor.belepteto.model.exception.NotFoundException;
-import hu.nye.progkor.belepteto.model.exception.WrongDirectionException;
+import hu.nye.progkor.belepteto.model.exception.WrongDataException;
 import hu.nye.progkor.belepteto.service.BeleptetoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,7 +51,11 @@ public class BeleptetoController {
 
   @PostMapping("/registration")
   public String createUser(@ModelAttribute("user") User user) {
-    User newUser = beleptetoService.createUser(user);
+    try {
+      User newUser = beleptetoService.createUser(user);
+    } catch (WrongDataException e) {
+      return "belepteto/wrongData";
+    }
     return "belepteto/success";
   }
 
@@ -67,8 +71,8 @@ public class BeleptetoController {
       InOut newInOut = beleptetoService.createInOut(inOut);
     } catch (NotFoundException e) {
       return "belepteto/userNotFound";
-    } catch (WrongDirectionException e) {
-      return "belepteto/wrongDirection";
+    } catch (WrongDataException e) {
+      return "belepteto/wrongData";
     }
     return "belepteto/success";
   }
