@@ -117,8 +117,6 @@ public class BeleptetoServiceImpl implements BeleptetoService {
     } else {
       newInOut.setIn(inOut.getIn());
     }
-
-
     inOutList.add(newInOut);
     return newInOut;
   }
