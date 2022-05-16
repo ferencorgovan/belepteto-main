@@ -33,7 +33,7 @@ public class BeleptetoServiceImplTest {
   private static final String GIPSZ_JAKAB_VEZETEKNEV = "Gipsz";
   private static final String GIPSZ_JAKAB_KERESZTNEV = "Jakab";
 
-
+  BeleptetoServiceImpl beleptetoService = new BeleptetoServiceImpl();
   private BeleptetoService underTest;
 
   @BeforeEach
