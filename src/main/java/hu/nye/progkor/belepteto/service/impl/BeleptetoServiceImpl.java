@@ -1,7 +1,9 @@
 package hu.nye.progkor.belepteto.service.impl;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +24,7 @@ public class BeleptetoServiceImpl implements BeleptetoService {
   private final List<User> userList = new ArrayList<>();
   private final List<InOut> inOutList = new ArrayList<>();
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  private final ZoneId zid = ZoneId.of("Europe/Paris");
 
   @Autowired
   public BeleptetoServiceImpl() {
@@ -81,7 +84,7 @@ public class BeleptetoServiceImpl implements BeleptetoService {
     } else {
       throw new NotFoundException();
     }
-    newInOut.setTime(LocalDateTime.now().format(formatter));
+    newInOut.setTime(LocalDateTime.now(zid).format(formatter));
     List<InOut> userInOut = getInOutsByUser(inOut.getId());
     if (userInOut.size() != 0) {
 

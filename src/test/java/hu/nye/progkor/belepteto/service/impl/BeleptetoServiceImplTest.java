@@ -1,7 +1,9 @@
 package hu.nye.progkor.belepteto.service.impl;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test;
 public class BeleptetoServiceImplTest {
 
   private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  private final ZoneId zid = ZoneId.of("Europe/Paris");
 
   private static final User TESZT_ELEK = new User(1L, "Teszt", "Elek");
   private static final User NAGY_BELA = new User(2L, "Nagy", "Béla");
@@ -75,8 +78,8 @@ public class BeleptetoServiceImplTest {
   void createInOutShouldReturnNewInOutWhenCreated() {
     // given
     User gipszJakab = new User(null, GIPSZ_JAKAB_VEZETEKNEV, GIPSZ_JAKAB_KERESZTNEV);
-    final InOut three = new InOut(3L, LocalDateTime.now().format(formatter), "Ki");
-    final InOut expectedThree = new InOut(3L, LocalDateTime.now().format(formatter), "Ki");
+    final InOut three = new InOut(3L, LocalDateTime.now(zid).format(formatter), "Ki");
+    final InOut expectedThree = new InOut(3L, LocalDateTime.now(zid).format(formatter), "Ki");
     // when
     final User user = underTest.createUser(gipszJakab);
     final InOut actual = underTest.createInOut(three);
@@ -87,7 +90,7 @@ public class BeleptetoServiceImplTest {
   @Test
   void createInOutShouldThrowNotFoundExceptionWhenGivenIdOfNotExistingUser() {
     // given
-    final InOut one = new InOut(3L, LocalDateTime.now().format(formatter), "Ki");
+    final InOut one = new InOut(3L, LocalDateTime.now(zid).format(formatter), "Ki");
     // when then
     Assertions.assertThrows(NotFoundException.class, () -> underTest.createInOut(one));
   }
@@ -96,11 +99,11 @@ public class BeleptetoServiceImplTest {
   void createInOutShouldCreateInOutInWhenUserIsOut() {
     // given
     final Long userId = 2L;
-    final InOut one = new InOut(userId, LocalDateTime.now().format(formatter), "Be");
+    final InOut one = new InOut(userId, LocalDateTime.now(zid).format(formatter), "Be");
     // when
     final List<InOut> inOuts = underTest.getInOutsByUser(userId);
     final InOut actual = underTest.createInOut(one);
-    final InOut expected = new InOut(userId, LocalDateTime.now().format(formatter), "Be");
+    final InOut expected = new InOut(userId, LocalDateTime.now(zid).format(formatter), "Be");
     // then
     Assertions.assertEquals(actual, expected);
   }
@@ -109,11 +112,11 @@ public class BeleptetoServiceImplTest {
   void createInOutShouldCreateInOutOutWhenUserIsIn() {
     // given
     final Long userId = 1L;
-    final InOut one = new InOut(1L, LocalDateTime.now().format(formatter), "Ki");
+    final InOut one = new InOut(1L, LocalDateTime.now(zid).format(formatter), "Ki");
     // when
     final List<InOut> inOuts = underTest.getInOutsByUser(userId);
     final InOut actual = underTest.createInOut(one);
-    final InOut expected = new InOut(1L, LocalDateTime.now().format(formatter), "Ki");
+    final InOut expected = new InOut(1L, LocalDateTime.now(zid).format(formatter), "Ki");
     // then
     Assertions.assertEquals(actual, expected);
   }
@@ -121,14 +124,14 @@ public class BeleptetoServiceImplTest {
   @Test
   void createInOutShouldThrowWrongDataExceptionWhenUserIsAlreadyIn() {
     // given
-    final InOut one = new InOut(1L, LocalDateTime.now().format(formatter), "Be");
+    final InOut one = new InOut(1L, LocalDateTime.now(zid).format(formatter), "Be");
     // when then
     Assertions.assertThrows(WrongDataException.class, () -> underTest.createInOut(one));
   }
   @Test
   void createInOutShouldThrowWrongDataExceptionWhenUserIsAlreadyOut() {
     // given
-    final InOut two = new InOut(2L, LocalDateTime.now().format(formatter), "Ki");
+    final InOut two = new InOut(2L, LocalDateTime.now(zid).format(formatter), "Ki");
     // when then
     Assertions.assertThrows(WrongDataException.class, () -> underTest.createInOut(two));
   }
@@ -136,7 +139,7 @@ public class BeleptetoServiceImplTest {
   @Test
   void createInOutShouldThrowWrongDataExceptionWhenGivenDirectionIsNotInOrOut() {
     // given
-    final InOut one = new InOut(2L, LocalDateTime.now().format(formatter), "xyz");
+    final InOut one = new InOut(2L, LocalDateTime.now(zid).format(formatter), "xyz");
     // when then
     Assertions.assertThrows(WrongDataException.class, () -> underTest.createInOut(one));
   }
